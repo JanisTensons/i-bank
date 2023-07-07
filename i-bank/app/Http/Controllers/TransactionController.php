@@ -9,16 +9,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
+use PragmaRX\Google2FA\Google2FA;
 
 class TransactionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(): View
     {
         $user = Auth::user();
@@ -27,11 +22,6 @@ class TransactionController extends Controller
         return view('transactions', compact('transactions'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create(): View
     {
         $user = Auth::user();
@@ -40,52 +30,57 @@ class TransactionController extends Controller
         return view('transactions/create', compact('accounts'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'from' => ['required', 'integer', 'different:to'],
             'to' => ['required', 'integer'],
             'amount' => ['required', 'numeric', 'min:0'],
+            'verification_code' => ['required'],
         ]);
 
-        $fromAccount = Account::findOrFail($request->from);
-        $toAccount = Account::findOrFail($request->to);
+        $google2fa = new Google2FA();
+        $user = Auth::user();
+        $secretKey = $user->two_factor_secret;
 
-        $fromCurrencyCode = $fromAccount->currency;
-        $toCurrencyCode = $toAccount->currency;
+        if ($google2fa->verifyKey($secretKey, $request->input('verification_code'))) {
 
-        $conversionRate = $this->getConversionRate($fromCurrencyCode, $toCurrencyCode);
+            $fromAccount = Account::findOrFail($request->from);
+            $toAccount = Account::findOrFail($request->to);
 
-        if (!$conversionRate) {
-            return redirect()->back()->withErrors(['error' => 'Conversion rate not found.']);
-        }
+            $fromCurrencyCode = $fromAccount->currency;
+            $toCurrencyCode = $toAccount->currency;
 
-        $amountInEUR = $this->convertToEUR($request->amount, $fromCurrencyCode, $conversionRate);
-        $convertedAmount = $this->convertFromEUR($amountInEUR, $toCurrencyCode, $conversionRate);
+            $conversionRate = $this->getConversionRate($fromCurrencyCode, $toCurrencyCode);
 
-        if ($fromAccount->balance < $request->amount) {
-            return redirect()->back()->withErrors(['amount' => 'Insufficient balance in the From account.']);
-        }
+            if (!$conversionRate) {
+                return redirect()->back()->withErrors(['error' => 'Conversion rate not found.']);
+            }
 
-        DB::beginTransaction();
+            $amountInEUR = $this->convertToEUR($request->amount, $fromCurrencyCode, $conversionRate);
+            $convertedAmount = $this->convertFromEUR($amountInEUR, $toCurrencyCode, $conversionRate);
 
-        try {
-            $this->subtractAmountFromAccount($fromAccount, $request->amount);
-            $this->addConvertedAmountToAccount($toAccount, $convertedAmount);
-            $this->createTransactionRecord($fromAccount, $toAccount, $convertedAmount, $request->description);
+            if ($fromAccount->balance < $request->amount) {
+                return redirect()->back()->withErrors(['amount' => 'Insufficient balance in the From account.']);
+            }
 
-            DB::commit();
+            DB::beginTransaction();
 
-            return redirect()->route('transactions')->with('success', 'Transfer completed successfully.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->withErrors(['error' => 'An error occurred during the transfer. Please try again.']);
+            try {
+                $this->subtractAmountFromAccount($fromAccount, $request->amount);
+                $this->addConvertedAmountToAccount($toAccount, $convertedAmount);
+                $this->createTransactionRecord($fromAccount, $toAccount, $convertedAmount, $request->description);
+
+                DB::commit();
+
+                return redirect()->route('transactions')->with('success', 'Transfer completed successfully.');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return redirect()->back()->withErrors(['error' => 'An error occurred during the transfer. Please try again.']);
+            }
+        } else {
+            return back()->withErrors(['verification_code' => 'Invalid verification code.'])->withInput();
+
         }
     }
 
@@ -141,54 +136,5 @@ class TransactionController extends Controller
             'description' => $description,
             'user_id' => auth()->id(),
         ]);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public
-    function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public
-    function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public
-    function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public
-    function destroy($id)
-    {
-        //
     }
 }

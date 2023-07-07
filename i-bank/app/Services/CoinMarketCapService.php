@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Cache;
 
 class CoinMarketCapService
@@ -23,9 +22,6 @@ class CoinMarketCapService
         ]);
     }
 
-    /**
-     * @throws GuzzleException
-     */
     public function getCryptocurrencyListings()
     {
         $cacheKey = 'crypto_listings';

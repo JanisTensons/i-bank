@@ -4,16 +4,16 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Providers\RouteServiceProvider;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PragmaRX\Google2FA\Google2FA;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
      * Display the login view.
-     *
-     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -22,24 +22,30 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request.
-     *
-     * @param  \App\Http\Requests\Auth\LoginRequest  $request
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(LoginRequest $request)
+
+    public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+            'verification_code' => ['required'],
+        ]);
 
-        $request->session()->regenerate();
+        $user = User::where('email', $request->email)->first();
+        $secretKey = $user->two_factor_secret;
+        $google2fa = new Google2FA();
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        if ($google2fa->verifyKey($secretKey, $request->input('verification_code'))) {
+            $request->authenticate();
+            return redirect()->route('dashboard');
+        } else {
+            return back()->withErrors(['verification_code' => 'Invalid verification code.'])->withInput();
+        }
     }
 
     /**
      * Destroy an authenticated session.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Request $request)
     {

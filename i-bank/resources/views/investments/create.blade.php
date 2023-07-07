@@ -19,7 +19,8 @@
                 <select id="account_id" class="block mt-1 w-full" name="account_id" required autofocus>
                     @foreach($accounts as $account)
                         @if($account->type === 'Investing Account')
-                            <option value="{{ $account->id }}">{{ $account->type }} {{ $account->number }} | {{ $account->currency }} | {{ $account->balance }}</option>
+                            <option value="{{ $account->id }}">{{ $account->type }} {{ $account->number }}
+                                | {{ $account->currency }} | {{ $account->balance }}</option>
                         @endif
                     @endforeach
                 </select>
@@ -54,40 +55,49 @@
             <div>
                 <x-label for="total-price" :value="__('Total')"/>
 
-                <!-- Check if account currency is not USD -->
-                @if($account->currency !== 'EUR')
+                @foreach($accounts as $account)
                     @php
                         $convertedPrice = convertToAccountCurrency(request('price'), $account->currency);
                     @endphp
-                    <x-input id="total-price" class="block mt-1 w-full" type="text" name="total-price" :value="$convertedPrice * request('amount')" required autofocus readonly/>
-                @else
-                    <x-input id="total-price" class="block mt-1 w-full" type="text" name="total-price" :value="request('price')" required autofocus readonly/>
-                @endif
+                    <x-input id="converted-price" class="block mt-1 w-full" type="hidden" name="converted-price"
+                             :value="$convertedPrice" required readonly hidden/>
+                @endforeach
+
+                <div>
+
+                    <x-input id="total-price" class="block mt-1 w-full" type="text" name="total-price"
+                             :value="request('price')" required autofocus readonly/>
+                </div>
 
                 <script>
                     // Function to calculate and update the total price
                     function updateTotalPrice() {
                         var amount = parseFloat(document.getElementById('amount').value);
-                        var price = parseFloat(document.getElementById('price').value);
-                        var convertedPrice = parseFloat(document.getElementById('total-price').value);
+                        var convertedPrice = parseFloat(document.getElementById('converted-price').value);
                         var totalPriceElement = document.getElementById('total-price');
 
                         // Calculate the total price
+                        var totalPrice = convertedPrice * amount;
+
                         // Update the value of the total price input field
-                        totalPriceElement.value = convertedPrice * amount;
+                        totalPriceElement.value = isNaN(totalPrice) ? '' : totalPrice.toFixed(2);
                     }
 
-                    // Add event listeners to the input fields to trigger the updateTotalPrice function when the values change
+                    // Add an event listener to the amount input field to trigger the updateTotalPrice function when the value changes
                     document.getElementById('amount').addEventListener('input', updateTotalPrice);
-                    document.getElementById('price').addEventListener('input', updateTotalPrice);
 
                     // Call the updateTotalPrice function initially to calculate and display the initial total price
                     updateTotalPrice();
                 </script>
 
+            </div>
 
-                <x-input id="total-price" class="block mt-1 w-full" type="text" name="total-price"
-                         :value="request('price') * 1" required autofocus readonly/>
+            <!-- Verification Code -->
+            <div class="mt-4">
+                <x-label for="verification_code" :value="__('Verification Code')"/>
+
+                <x-input id="verification_code" class="block mt-1 w-full" type="text" name="verification_code" required
+                         autofocus/>
             </div>
 
             <div class="flex items-center justify-end mt-4">

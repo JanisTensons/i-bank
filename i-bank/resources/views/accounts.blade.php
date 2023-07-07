@@ -81,10 +81,11 @@
                     </tr>
                     </thead>
                     <tbody>
+
                     @foreach ($accounts as $account)
                         <tr class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700">
                             <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                <a href="{{ route('accounts.show', ['id' => $account->id]) }}">{{ $account->number }}</a>
+                                {{ $account->number }}
                             </td>
                             <td class="px-6 py-4">
                                 {{ $account->type }}

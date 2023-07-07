@@ -2,9 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\CurrencyRate;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
@@ -12,9 +9,6 @@ class CurrencyRatesService
 {
     protected string $cacheKey = 'currency_rates';
 
-    /**
-     * @throws GuzzleException
-     */
     public function getCurrencyRatesListings()
     {
         return Cache::remember($this->cacheKey, 60, function () {

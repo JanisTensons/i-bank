@@ -1,12 +1,11 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CurrencyRatesController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\TransactionController;
-use App\Jobs\UpdateInvestmentPrice;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -64,7 +63,7 @@ Route::get('portfolio', [PortfolioController::class, 'index'])
     ->middleware(['auth'])
     ->name('portfolio');
 
-Route::get('portfolio/destroy', [PortfolioController::class, 'destroy'])
+Route::get('portfolio/destroy', [InvestmentController::class, 'createDestroyForm'])
     ->middleware(['auth'])
     ->name('portfolio/destroy');
 
@@ -100,14 +99,15 @@ Route::delete('destroy', [AccountController::class, 'destroy'])
     ->middleware(['auth'])
     ->name('destroy');
 
+Route::post('verify-code', [AuthenticatedSessionController::class, 'verifyCode'])
+    ->name('verify-code');
+
 Route::get('/run-investment-price-scheduler', function () {
     $investments = \App\Models\Investment::all();
 
     foreach ($investments as $investment) {
         \App\Jobs\UpdateInvestmentPrice::dispatch($investment);
     }
-
-//    return response()->json(['message' => 'Investment price scheduler executed successfully']);
 });
 
 require __DIR__ . '/auth.php';

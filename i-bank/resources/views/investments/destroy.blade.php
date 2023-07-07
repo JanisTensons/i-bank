@@ -19,7 +19,8 @@
                 <select id="account_id" class="block mt-1 w-full" name="account_id" required autofocus>
                     @foreach($accounts as $account)
                         @if($account->type === 'Investing Account')
-                            <option value="{{ $account->id }}">{{ $account->type }} {{ $account->number }} | {{ $account->currency }} | {{ $account->balance }}</option>
+                            <option value="{{ $account->id }}">{{ $account->type }} {{ $account->number }}
+                                | {{ $account->currency }} | {{ $account->balance }}</option>
                         @endif
                     @endforeach
                 </select>
@@ -44,36 +45,61 @@
 
             <!-- Profit -->
             <div>
-                <x-label for="profit" :value="__('Profit')"/>
-
+                <x-label for="profit" :value="__('Profit €')"/>
                 <x-input id="profit" class="block mt-1 w-full" type="number" name="profit" :value="request('profit')"
-                         min="1" required autofocus readonly/>
-            </div>
-
-            <!-- Amount
-            <div>
-                <x-label for="amount" :value="__('Amount')"/>
-
-                <x-input id="amount" class="block mt-1 w-full" type="number" name="amount" :value="1"
-                         min="1" required autofocus readonly/>
-            </div>
-
-             Price
-            <div>
-                <x-label for="price" :value="__('Price')"/>
-
-                <x-input id="price" class="block mt-1 w-full" type="text" name="price" :value="request('price')"
                          required autofocus readonly/>
             </div>
 
-             Total Price
+            <!-- Total Profit -->
             <div>
-                <x-label for="total-price" :value="__('Total')"/>
+                <x-label for="total-profit" :value="__('Total Profit')"/>
 
-                <x-input id="total-price" class="block mt-1 w-full" type="text" name="total-price"
-                         :value="request('price') * 1" required autofocus readonly/>
+                @php
+                    $totalProfit = 0;
+                @endphp
+
+                @foreach($accounts as $account)
+                    @php
+                        $convertedProfit = convertToAccountCurrency(request('profit'), $account->currency);
+                        $totalProfit += $convertedProfit;
+                    @endphp
+                    <x-input id="converted-profit-{{ $account->id }}" class="block mt-1 w-full" type="hidden"
+                             name="converted-profit"
+                             :value="$convertedProfit" required readonly hidden/>
+                @endforeach
+
+                <x-input id="total-profit" class="block mt-1 w-full" type="text" name="total-profit"
+                         :value="$totalProfit"
+                         required autofocus readonly/>
             </div>
--->
+
+            <script>
+                // Function to update the total profit
+                function updateTotalProfit() {
+                    var totalProfit = 0;
+
+                    @foreach($accounts as $account)
+                    var convertedProfit = parseFloat(document.getElementById('converted-profit-{{ $account->id }}').value);
+                    totalProfit += convertedProfit;
+                    @endforeach
+
+                    var totalProfitElement = document.getElementById('total-profit');
+                    totalProfitElement.value = isNaN(totalProfit) ? '' : totalProfit.toFixed(2);
+                }
+
+                // Call the updateTotalProfit function initially to calculate and display the initial total profit
+                updateTotalProfit();
+            </script>
+
+
+            <!-- Verification Code -->
+            <div class="mt-4">
+                <x-label for="verification_code" :value="__('Verification Code')"/>
+
+                <x-input id="verification_code" class="block mt-1 w-full" type="text" name="verification_code" required
+                         autofocus/>
+            </div>
+
             <div class="flex items-center justify-end mt-4">
                 <x-button class="ml-4">
                     {{ __('Sell') }}

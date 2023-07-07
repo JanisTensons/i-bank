@@ -82,6 +82,7 @@
                     </tr>
                     </thead>
                     <tbody>
+
                     @foreach ($transactions as $transaction)
                         <tr class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700">
 

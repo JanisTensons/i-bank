@@ -19,8 +19,9 @@
                 <select id="from" class="block mt-1 w-full" name="from" required autofocus>
                     @foreach($accounts as $account)
                         @if($account->type === 'Checking Account')
-                            <option value="{{ $account->id }}">{{ $account->type }} {{ $account->number }}
-                                | {{ $account->currency }} | {{ $account->balance }}</option>
+                            <option value="{{ $account->id }}" {{ old('from') == $account->id ? 'selected' : '' }}>
+                                {{ $account->type }} {{ $account->number }} | {{ $account->currency }} | {{ $account->balance }}
+                            </option>
                         @endif
                     @endforeach
                 </select>
@@ -33,8 +34,9 @@
                 <select id="to" class="block mt-1 w-full" name="to" required autofocus>
                     @foreach($accounts as $account)
                         @if($account->type === 'Checking Account')
-                            <option value="{{ $account->id }}">{{ $account->type }} {{ $account->number }}
-                                | {{ $account->currency }} | {{ $account->balance }}</option>
+                            <option value="{{ $account->id }}" {{ old('to') == $account->id ? 'selected' : '' }}>
+                                {{ $account->type }} {{ $account->number }} | {{ $account->currency }} | {{ $account->balance }}
+                            </option>
                         @endif
                     @endforeach
                 </select>
@@ -44,7 +46,7 @@
             <div>
                 <x-label for="amount" :value="__('Amount')"/>
 
-                <x-input id="amount" class="block mt-1 w-full" type="text" name="amount" :value="old('amount')" required autofocus/>
+                <x-input id="amount" class="block mt-1 w-full" type="number" name="amount" :value="old('amount')" required autofocus/>
             </div>
 
             <!-- Description -->
@@ -52,6 +54,13 @@
                 <x-label for="description" :value="__('Description')"/>
 
                 <x-input id="description" class="block mt-1 w-full" type="text" name="description" :value="old('description')" autofocus/>
+            </div>
+
+            <!-- Verification Code -->
+            <div class="mt-4">
+                <x-label for="verification_code" :value="__('Verification Code')" />
+
+                <x-input id="verification_code" class="block mt-1 w-full" type="text" name="verification_code" required autofocus />
             </div>
 
             <div class="flex items-center justify-end mt-4">

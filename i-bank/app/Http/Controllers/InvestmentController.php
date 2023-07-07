@@ -6,23 +6,15 @@ use App\Jobs\UpdateInvestmentPrice;
 use App\Models\Account;
 use App\Models\Investment;
 use App\Services\CoinMarketCapService;
-use Doctrine\DBAL\Exception;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
+use PragmaRX\Google2FA\Google2FA;
 
 class InvestmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-
     protected CoinMarketCapService $coinMarketCapService;
 
     public function __construct(CoinMarketCapService $coinMarketCapService)
@@ -30,9 +22,6 @@ class InvestmentController extends Controller
         $this->coinMarketCapService = $coinMarketCapService;
     }
 
-    /**
-     * @throws GuzzleException
-     */
     public function index()
     {
         $cryptocurrencyListings = $this->coinMarketCapService->getCryptocurrencyListings();
@@ -46,15 +35,9 @@ class InvestmentController extends Controller
                 'percent_change_7d' => $listing['quote']['EUR']['percent_change_7d'],
             ];
         }
-
         return view('investments', compact('cryptocurrencyCollection'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create(): View
     {
         $user = Auth::user();
@@ -63,16 +46,11 @@ class InvestmentController extends Controller
         return view('investments.create', compact('accounts'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'amount' => ['required', 'numeric', 'min:1'],
+            'verification_code' => ['required'],
         ]);
 
         $account = Account::findOrFail($request->account_id);
@@ -80,89 +58,62 @@ class InvestmentController extends Controller
         $totalCost = $investmentPrice * $request->amount;
 
         if ($account->balance < $totalCost) {
-            // The account does not have enough balance
             return redirect()->back()->withErrors(['insufficient_balance' => 'Insufficient account balance.']);
         }
 
-        // Subtract the total cost from the account balance
-        $account->balance -= $totalCost;
-        $account->save();
+        $user = Auth::user();
+        $secretKey = $user->two_factor_secret;
+        $google2fa = new Google2FA();
 
-        // Create the investment without the price
-        $investment = Investment::create([
-            'name' => $request->name,
-            'amount' => $request->amount,
-            'user_price' => $request->price,
-            'user_id' => auth()->id(),
-        ]);
+        if ($google2fa->verifyKey($secretKey, $request->input('verification_code'))) {
 
-        // Dispatch the job to update the price asynchronously
-        UpdateInvestmentPrice::dispatch($investment);
+            $account->balance -= $totalCost;
+            $account->save();
 
-        Session::flash('success', 'Investment created successfully.');
+            $investment = Investment::create([
+                'name' => $request->name,
+                'amount' => $request->amount,
+                'user_price' => $request->price,
+                'user_id' => auth()->id(),
+            ]);
 
-        return redirect()->route('investments')->with('success', 'Investment created successfully.');
+            UpdateInvestmentPrice::dispatch($investment);
+
+            Session::flash('success', 'Investment created successfully.');
+
+            return redirect()->route('investments')->with('success', 'Investment created successfully.');
+        } else {
+            return back()->withErrors(['verification_code' => 'Invalid verification code.'])->withInput();
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Request $request): RedirectResponse
     {
-        $investment = Investment::findOrFail($request->id);
+        $google2fa = new Google2FA();
+        $user = Auth::user();
+        $secretKey = $user->two_factor_secret;
 
-        // Perform any additional authorization checks if needed
+        if ($google2fa->verifyKey($secretKey, $request->input('verification_code'))) {
 
-        // Delete the investment
-        $investment->delete();
+            $investment = Investment::findOrFail($request->id);
 
-        $account = Account::findOrFail($request->account_id);
-        $account->balance += $request->profit;
-        $account->save();
+            $investment->delete();
 
-        // Optionally, perform any additional logic or redirect as needed
+            $account = Account::findOrFail($request->account_id);
+            $account->balance += $request->profit;
+            $account->save();
 
-        return redirect()->route('portfolio')->with('success', 'Investment sold successfully.');
+            return redirect()->route('portfolio')->with('success', 'Investment sold successfully.');
+        } else {
+            return back()->withErrors(['verification_code' => 'Invalid verification code.'])->withInput();
+        }
     }
 
+    public function createDestroyForm(): View
+    {
+        $user = Auth::user();
+        $accounts = $user->accounts()->where('type', 'Investing Account')->get();
 
-
-
+        return view('investments.destroy', compact('accounts'));
+    }
 }

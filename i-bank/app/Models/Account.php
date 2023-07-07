@@ -13,11 +13,6 @@ class Account extends Model
 
     protected $table = 'user_accounts';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'user_id',
         'type',
@@ -26,14 +21,13 @@ class Account extends Model
         'balance'
     ];
 
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function currencyRates(): HasMany
+    public function transactions(): HasMany
     {
-        return $this->hasMany(CurrencyRate::class);
+        return $this->hasMany(Transaction::class);
     }
 }

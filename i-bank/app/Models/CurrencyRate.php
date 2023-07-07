@@ -12,11 +12,6 @@ class CurrencyRate extends Model
 
     protected $table = 'currency_rates';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'currency',
         'rate',

@@ -13,9 +13,6 @@ class Kernel extends ConsoleKernel
 {
     /**
      * Define the application's command schedule.
-     *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
-     * @return void
      */
     protected function schedule(Schedule $schedule)
     {
@@ -30,34 +27,18 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $currencyRates = CurrencyRate::all();
 
-            if ($currencyRates->isEmpty()) {
-                // If the currency_rates table is empty, fetch initial data and save it
-                $currencyRatesService = app()->make(\App\Services\CurrencyRatesService::class);
-                $currencyRatesListings = $currencyRatesService->getCurrencyRatesListings();
-
-                foreach ($currencyRatesListings['Currencies']['Currency'] as $listing) {
-                    CurrencyRate::create([
-                        'currency' => $listing['ID'],
-                        'rate' => $listing['Rate'],
-                    ]);
-                }
-            } else {
-                // If the currency_rates table has data, update the rates
-                foreach ($currencyRates as $currencyRate) {
-                    UpdateCurrencyRate::dispatch($currencyRate);
-                }
+            foreach ($currencyRates as $currencyRate) {
+                UpdateCurrencyRate::dispatch($currencyRate);
             }
         })->everyMinute();
     }
 
     /**
      * Register the commands for the application.
-     *
-     * @return void
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
