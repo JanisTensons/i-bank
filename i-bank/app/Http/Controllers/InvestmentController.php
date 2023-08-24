@@ -100,7 +100,7 @@ class InvestmentController extends Controller
             $investment->delete();
 
             $account = Account::findOrFail($request->account_id);
-            $account->balance += $request->profit;
+            $account->balance += $request->totalProfit;
             $account->save();
 
             return redirect()->route('portfolio')->with('success', 'Investment sold successfully.');

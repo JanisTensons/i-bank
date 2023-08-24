@@ -52,7 +52,7 @@
 
             <!-- Total Profit -->
             <div>
-                <x-label for="total-profit" :value="__('Total Profit')"/>
+                <x-label for="totalProfit" :value="__('Total Profit')"/>
 
                 @php
                     $totalProfit = 0;
@@ -68,7 +68,7 @@
                              :value="$convertedProfit" required readonly hidden/>
                 @endforeach
 
-                <x-input id="total-profit" class="block mt-1 w-full" type="text" name="total-profit"
+                <x-input id="totalProfit" class="block mt-1 w-full" type="text" name="totalProfit"
                          :value="$totalProfit"
                          required autofocus readonly/>
             </div>
@@ -76,14 +76,14 @@
             <script>
                 // Function to update the total profit
                 function updateTotalProfit() {
-                    var totalProfit = 0;
+                    let totalProfit = 0;
 
                     @foreach($accounts as $account)
-                    var convertedProfit = parseFloat(document.getElementById('converted-profit-{{ $account->id }}').value);
+                    let convertedProfit = parseFloat(document.getElementById('converted-profit-{{ $account->id }}').value);
                     totalProfit += convertedProfit;
                     @endforeach
 
-                    var totalProfitElement = document.getElementById('total-profit');
+                    let totalProfitElement = document.getElementById('total-profit');
                     totalProfitElement.value = isNaN(totalProfit) ? '' : totalProfit.toFixed(2);
                 }
 

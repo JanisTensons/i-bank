@@ -72,12 +72,12 @@
                 <script>
                     // Function to calculate and update the total price
                     function updateTotalPrice() {
-                        var amount = parseFloat(document.getElementById('amount').value);
-                        var convertedPrice = parseFloat(document.getElementById('converted-price').value);
-                        var totalPriceElement = document.getElementById('total-price');
+                        let amount = parseFloat(document.getElementById('amount').value);
+                        let convertedPrice = parseFloat(document.getElementById('converted-price').value);
+                        let totalPriceElement = document.getElementById('total-price');
 
                         // Calculate the total price
-                        var totalPrice = convertedPrice * amount;
+                        let totalPrice = convertedPrice * amount;
 
                         // Update the value of the total price input field
                         totalPriceElement.value = isNaN(totalPrice) ? '' : totalPrice.toFixed(2);
