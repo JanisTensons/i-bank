@@ -38,7 +38,7 @@ class AuthenticatedSessionController extends Controller
 
         if ($google2fa->verifyKey($secretKey, $request->input('verification_code'))) {
             $request->authenticate();
-            return redirect()->route('dashboard');
+            return redirect()->route('dashboard')->with('success', 'You are logged in!');;
         } else {
             return back()->withErrors(['verification_code' => 'Invalid verification code.'])->withInput();
         }

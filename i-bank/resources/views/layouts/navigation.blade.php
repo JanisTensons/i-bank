@@ -58,6 +58,9 @@
                     </x-slot>
 
                     <x-slot name="content">
+                        <div class="font-medium text-sm text-gray-500"
+                             style="margin-left: 15px;">{{ Auth::user()->email }}</div>
+
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -93,6 +96,21 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('accounts')" :active="request()->routeIs('accounts')">
+                {{ __('Accounts') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('transactions')" :active="request()->routeIs('transactions')">
+                {{ __('Transactions') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('investments')" :active="request()->routeIs('investments')">
+                {{ __('Investments') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('portfolio')" :active="request()->routeIs('portfolio')">
+                {{ __('Portfolio') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('rates')" :active="request()->routeIs('rates')">
+                {{ __('Rates') }}
             </x-responsive-nav-link>
         </div>
 

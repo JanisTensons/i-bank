@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CurrencyRatesController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\TransactionController;
@@ -23,9 +24,9 @@ Route::get('/', function () {
     return view('index');
 });
 
-Route::get('dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+Route::get('dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('dashboard');
 
 Route::get('accounts', [AccountController::class, 'index'])
     ->middleware(['auth'])

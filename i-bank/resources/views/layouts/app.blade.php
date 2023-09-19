@@ -12,6 +12,7 @@
 
         <!-- Scripts -->
         <script src="https://cdn.tailwindcss.com"></script>
+        <script defer src="https://unpkg.com/alpinejs@3.2.4/dist/cdn.min.js"></script>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
@@ -28,6 +29,13 @@
             <main>
                 {{ $slot }}
             </main>
+
+            <!-- Footer -->
+            <footer class="bg-white shadow py-4">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    © 2023 iBank. All rights reserved.
+                </div>
+            </footer>
         </div>
     </body>
 </html>
