@@ -1,64 +1,96 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# iBank
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<img src="https://github.com/JanisTensons/i-bank/assets/124044988/c0d24e6c-7091-414b-a261-0ff93ed758d9" alt="iBank-3" width="100px" height="100px">
 
-## About Laravel
+iBank is a modern online banking platform that allows users to manage their accounts, perform transactions, and access various financial services conveniently.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **User Registration and Login**: Users can create accounts and log in securely.
+- **Account Management**: View account balances, transaction history, and perform various account-related actions.
+- **Fund Transfers**: Transfer money between user accounts securely.
+- **Cryptocurrency Investments**: Invest in cryptocurrencies right from your iBank account.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+    - **Cryptocurrency Selection**: Choose from a variety of cryptocurrencies for your investments.
 
-## Learning Laravel
+    - **Real-time Market Data**: Stay up-to-date with real-time prices and historical data.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+    - **Investment Portfolios**: Create and manage your cryptocurrency investment portfolios.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+    - **Buy and Sell**: Buy and sell cryptocurrencies securely.
 
-## Laravel Sponsors
+    - **Portfolio Tracking**: Monitor the performance of your cryptocurrency investments.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+    - **Security**: We prioritize the security of your cryptocurrency transactions and holdings.
 
-### Premium Partners
+- **Two-Factor Authentication (2FA) by Google**: iBank enhances security by implementing Two-Factor Authentication (2FA) using Google Authenticator. Users are required to provide a secondary verification method, such as a one-time code sent to their mobile device, in addition to their password, to access their accounts and make transfers.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
 
-## Contributing
+## Getting Started
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Installation
 
-## Code of Conduct
+Follow these steps to install and set up iBank:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. Clone the iBank repository to your local machine:
 
-## Security Vulnerabilities
+   ```bash
+   git clone https://github.com/JanisTensons/i-bank.git
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+2. Navigate to the project directory
+3. Create a .env file in the root directory and configure your application settings. You can use the provided .env.example file as a template:
 
-## License
+    ```bash
+    cp .env.example .env
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Edit the .env file to set your environment variables.
+
+4. Install the required dependencies:
+
+    ```bash
+    composer install
+
+5. Generate a unique application key for your Laravel project:
+
+    ```bash
+    php artisan key:generate
+
+6. Set up your database and run migrations:
+
+    ```bash
+    php artisan migrate
+
+7. To populate the database with initial data, run the following command:
+
+    ```bash
+    php artisan db:seed
+
+8. Start the iBank application:
+
+    ```bash
+    php artisan serve
+
+9. The application will be available at http://localhost:8000.
+   Open your web browser and navigate to http://localhost:8000 to access the iBank application.
+
+10. To start the queue worker for background job processing, run:
+
+    ```bash
+    php artisan queue:work
+
+This command starts a worker process that listens for and processes jobs from the queue.
+
+11. To enable scheduled task execution, set up a cron job to run Laravel's task scheduler. Edit your server's crontab file with:
+
+    ```bash
+    * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+
+12. Run:
+
+    ```bash
+    php artisan schedule:run
+    
+That's it! You've successfully installed iBank on your local machine. You can now start using it for your banking needs.
+
+Feel free to contact us if you have any questions or feedback.
+

@@ -6,6 +6,7 @@ use App\Jobs\UpdateCurrencyRate;
 use App\Jobs\UpdateInvestmentPrice;
 use App\Models\CurrencyRate;
 use App\Models\Investment;
+use App\Services\CurrencyRatesService;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -25,12 +26,27 @@ class Kernel extends ConsoleKernel
         })->everyMinute();
 
         $schedule->call(function () {
-            $currencyRates = CurrencyRate::all();
+            if (CurrencyRate::count() === 1) {
+                // The table is empty (only EUR rate available), load initial data.
+                $currencyRatesService = app(CurrencyRatesService::class);
+                $currencyRatesListings = $currencyRatesService->getCurrencyRatesListings();
 
-            foreach ($currencyRates as $currencyRate) {
-                UpdateCurrencyRate::dispatch($currencyRate);
+                foreach ($currencyRatesListings['Currencies']['Currency'] as $listing) {
+                    CurrencyRate::create([
+                        'currency' => $listing['ID'],
+                        'rate' => $listing['Rate']
+                    ]);
+                }
+            } else {
+                // The table is not empty, update the rates.
+                $currencyRates = CurrencyRate::all();
+
+                foreach ($currencyRates as $currencyRate) {
+                    UpdateCurrencyRate::dispatch($currencyRate);
+                }
             }
         })->everyMinute();
+
     }
 
     /**
