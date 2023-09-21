@@ -4,6 +4,8 @@
 
 iBank is a modern online banking platform that allows users to manage their accounts, perform transactions, and access various financial services conveniently.
 
+![ezgif com-crop](https://github.com/JanisTensons/i-bank/assets/124044988/9b63e220-685f-45db-a395-3ab2159b6787)
+
 ## Features
 
 - **User Registration and Login**: Users can create accounts and log in securely.
@@ -63,7 +65,7 @@ Edit the .env file to set your environment variables.
 7. To populate the database with initial data, run the following command:
 
     ```bash
-    php artisan db:seed
+    php artisan db:seed --class=CurrencyRatesSeeder
 
 8. Start the iBank application:
 
