@@ -40,6 +40,9 @@ class UpdateCurrencyRate implements ShouldQueue
     private function findRateForCurrencyRate(array $currencyRatesListings, string $currencyRateId): ?string
     {
         foreach ($currencyRatesListings['Currencies']['Currency'] as $listing) {
+            if ($currencyRateId === 'EUR') {
+                return '1.00';
+            }
             if ((string)$listing['ID'] === $currencyRateId) {
                 return $listing['Rate'];
             }
